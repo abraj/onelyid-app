@@ -1,7 +1,8 @@
 import { html } from '#/lib/view'
 import { shell } from '#/lib/shell'
+import { escapeHtml } from '#/utils'
 
-type Props = { error?: string }
+type Props = { redirectUrl?: string, error?: string }
 
 export function login(props: Props) {
   return shell({
@@ -10,7 +11,7 @@ export function login(props: Props) {
   })
 }
 
-function content({ error }: Props) {
+function content({ redirectUrl, error }: Props) {
   return html`<div id="root">
     <div id="header">
       <h1>onely<span class="onelyid">id</span></h1>
@@ -24,6 +25,7 @@ function content({ error }: Props) {
           placeholder="Enter your handle (eg alice.bsky.social)"
           required
         />
+        ${redirectUrl ? html`<input type="hidden" name="redirectUrl" value="${escapeHtml(redirectUrl)}">` : undefined}
         <button type="submit">Log in</button>
         ${error ? html`<p>Error: <i>${error}</i></p>` : undefined}
       </form>

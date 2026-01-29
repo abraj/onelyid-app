@@ -33,18 +33,24 @@ export const createRouter = (ctx: AppContext) => {
   // Login page
   router.get(
     '/login',
-    handler(async (_req, res) => {
-      return res.type('html').send(page(login({})))
+    handler(async (req, res) => {
+      const redirectUrl = (req.query['continue'] ?? '') as string
+      await req.getAuth()
+      if (req.auth) {
+        return res.redirect(redirectUrl || '/')
+      }
+      return res.type('html').send(page(login({ redirectUrl })))
     })
   )
 
   // Login handler
   router.post(
     '/login',
-    handler(async (req, _res) => {
+    handler(async (req, res) => {
       const handle = req.body?.handle
+      const redirectUrl = req.body?.redirectUrl
       if (handle) {
-        await req.authFlow(handle)
+        await req.authFlow(handle, redirectUrl)
       }
     })
   )
