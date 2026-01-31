@@ -29,20 +29,16 @@ export const createRouter = (ctx: AppContext) => {
   // Static assets
   router.use('/public', express.static(path.join(__dirname, 'pages', 'public')))
 
-  // Login page
+  // Login handler
   router.get(
     '/login',
-    handler(async (_req, res) => {
-      return res.type('html').send(page(login({})))
-    })
-  )
-
-  // Login handler
-  router.post(
-    '/login',
     handler(async (req, res) => {
-      const handle = req.body?.handle
-      res.send(`handle: ${handle}`)
+      const redirectUrl = (req.query['continue'] ?? '') as string
+      await req.getAuth()
+      if (req.auth) {
+        return res.redirect(redirectUrl || '/')
+      }
+      await req.authFlow()
     })
   )
 
@@ -50,7 +46,7 @@ export const createRouter = (ctx: AppContext) => {
   router.post(
     '/logout',
     handler(async (_req, res) => {
-      // todo: logout
+      await res.clearAuth()
       return res.redirect('/')
     })
   )
